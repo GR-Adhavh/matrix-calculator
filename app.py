@@ -19,12 +19,14 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+
+    /* Main title */
     .main-title {
         text-align: center;
         color: #1f4e79;
         font-size: 42px;
         font-weight: bold;
-        margin-bottom: 10px;
+        margin-bottom: 5px;
     }
 
     .subtitle {
@@ -34,13 +36,49 @@ st.markdown(
         margin-bottom: 30px;
     }
 
+    /* Matrix heading */
     .matrix-title {
         text-align: center;
         color: #333;
         font-size: 24px;
         font-weight: bold;
+        margin-bottom: 10px;
     }
 
+    /* Matrix input boxes */
+    div[data-testid="stNumberInput"] {
+        margin-bottom: 0px;
+    }
+
+    div[data-testid="stNumberInput"] input {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 500;
+        height: 48px;
+    }
+
+    /* Hide number input labels */
+    div[data-testid="stNumberInput"] label {
+        display: none;
+    }
+
+    /* Matrix brackets */
+    .bracket {
+        font-size: 90px;
+        line-height: 1;
+        color: #333;
+        font-weight: 200;
+    }
+
+    .bracket-left {
+        margin-right: -10px;
+    }
+
+    .bracket-right {
+        margin-left: -10px;
+    }
+
+    /* Operator */
     .operator {
         text-align: center;
         font-size: 45px;
@@ -48,14 +86,17 @@ st.markdown(
         padding-top: 120px;
     }
 
+    /* Result heading */
     .result-title {
         text-align: center;
         color: #1f4e79;
         font-size: 30px;
         font-weight: bold;
         margin-top: 30px;
+        margin-bottom: 15px;
     }
 
+    /* Determinant result */
     .det-result {
         text-align: center;
         font-size: 28px;
@@ -63,23 +104,9 @@ st.markdown(
         color: #008000;
         padding: 15px;
     }
+
     </style>
     """,
-    unsafe_allow_html=True
-)
-
-
-# =========================================================
-# TITLE
-# =========================================================
-
-st.markdown(
-    '<div class="main-title">🔢 3 × 3 Matrix Calculator</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="subtitle">Perform matrix operations easily</div>',
     unsafe_allow_html=True
 )
 
@@ -91,31 +118,51 @@ st.markdown(
 def get_matrix(prefix):
     """
     Creates a 3 × 3 matrix of number input boxes.
-    Returns the matrix as a list of lists.
+    The inputs are visually arranged like a matrix.
     """
 
     matrix = []
 
-    for i in range(3):
+    # Create space for left bracket
+    outer_left, matrix_area, outer_right = st.columns(
+        [0.7, 5, 0.7]
+    )
 
-        cols = st.columns(3)
+    with outer_left:
+        st.markdown(
+            '<div class="bracket bracket-left">[</div>',
+            unsafe_allow_html=True
+        )
 
-        row = []
+    with matrix_area:
 
-        for j in range(3):
+        for i in range(3):
 
-            with cols[j]:
+            cols = st.columns(3)
 
-                value = st.number_input(
-                    f"Element {i + 1},{j + 1}",
-                    value=0.0,
-                    step=1.0,
-                    key=f"{prefix}_{i}_{j}"
-                )
+            row = []
 
-                row.append(value)
+            for j in range(3):
 
-        matrix.append(row)
+                with cols[j]:
+
+                    value = st.number_input(
+                        "",
+                        value=0.0,
+                        step=1.0,
+                        key=f"{prefix}_{i}_{j}",
+                        label_visibility="collapsed"
+                    )
+
+                    row.append(value)
+
+            matrix.append(row)
+
+    with outer_right:
+        st.markdown(
+            '<div class="bracket bracket-right">]</div>',
+            unsafe_allow_html=True
+        )
 
     return matrix
 
@@ -125,14 +172,73 @@ def get_matrix(prefix):
 # =========================================================
 
 def display_matrix(matrix):
-    """
-    Displays a matrix using Streamlit's dataframe.
+
+    st.markdown(
+        """
+        <style>
+
+        .result-matrix {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 15px auto 30px auto;
+        }
+
+        .result-bracket {
+            font-size: 100px;
+            font-weight: 200;
+            line-height: 0.8;
+            color: #333;
+        }
+
+        .result-table {
+            border-collapse: collapse;
+            margin: 0 8px;
+        }
+
+        .result-table td {
+            padding: 10px 25px;
+            text-align: center;
+            font-size: 22px;
+            min-width: 70px;
+        }
+
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    html = """
+    <div class="result-matrix">
+        <div class="result-bracket">[</div>
+
+        <table class="result-table">
     """
 
-    st.dataframe(
-        matrix,
-        hide_index=True,
-        use_container_width=True
+    for row in matrix:
+
+        html += "<tr>"
+
+        for value in row:
+
+            # Remove unnecessary .0 for whole numbers
+            if isinstance(value, float) and value.is_integer():
+                value = int(value)
+
+            html += f"<td>{value}</td>"
+
+        html += "</tr>"
+
+    html += """
+        </table>
+
+        <div class="result-bracket">]</div>
+    </div>
+    """
+
+    st.markdown(
+        html,
+        unsafe_allow_html=True
     )
 
 
@@ -149,7 +255,10 @@ def add():
 
     col1, op, col2 = st.columns([5, 1, 5])
 
+    # -----------------------------------------------------
     # Matrix A
+    # -----------------------------------------------------
+
     with col1:
 
         st.markdown(
@@ -159,7 +268,10 @@ def add():
 
         A = get_matrix("A_add")
 
+    # -----------------------------------------------------
     # Operator
+    # -----------------------------------------------------
+
     with op:
 
         st.markdown(
@@ -167,7 +279,10 @@ def add():
             unsafe_allow_html=True
         )
 
+    # -----------------------------------------------------
     # Matrix B
+    # -----------------------------------------------------
+
     with col2:
 
         st.markdown(
@@ -180,7 +295,7 @@ def add():
     st.markdown("")
 
     calculate = st.button(
-        "➕ Calculate Addition",
+        "Calculate",
         key="add_button",
         use_container_width=True
     )
@@ -195,7 +310,9 @@ def add():
 
             for j in range(3):
 
-                row.append(A[i][j] + B[i][j])
+                row.append(
+                    A[i][j] + B[i][j]
+                )
 
             result.append(row)
 
@@ -220,7 +337,10 @@ def sub():
 
     col1, op, col2 = st.columns([5, 1, 5])
 
+    # -----------------------------------------------------
     # Matrix A
+    # -----------------------------------------------------
+
     with col1:
 
         st.markdown(
@@ -230,7 +350,10 @@ def sub():
 
         A = get_matrix("A_sub")
 
+    # -----------------------------------------------------
     # Operator
+    # -----------------------------------------------------
+
     with op:
 
         st.markdown(
@@ -238,7 +361,10 @@ def sub():
             unsafe_allow_html=True
         )
 
+    # -----------------------------------------------------
     # Matrix B
+    # -----------------------------------------------------
+
     with col2:
 
         st.markdown(
@@ -251,7 +377,7 @@ def sub():
     st.markdown("")
 
     calculate = st.button(
-        "➖ Calculate Subtraction",
+        "Calculate",
         key="sub_button",
         use_container_width=True
     )
@@ -266,7 +392,9 @@ def sub():
 
             for j in range(3):
 
-                row.append(A[i][j] - B[i][j])
+                row.append(
+                    A[i][j] - B[i][j]
+                )
 
             result.append(row)
 
@@ -291,7 +419,10 @@ def mul():
 
     col1, op, col2 = st.columns([5, 1, 5])
 
+    # -----------------------------------------------------
     # Matrix A
+    # -----------------------------------------------------
+
     with col1:
 
         st.markdown(
@@ -301,7 +432,10 @@ def mul():
 
         A = get_matrix("A_mul")
 
+    # -----------------------------------------------------
     # Operator
+    # -----------------------------------------------------
+
     with op:
 
         st.markdown(
@@ -309,7 +443,10 @@ def mul():
             unsafe_allow_html=True
         )
 
+    # -----------------------------------------------------
     # Matrix B
+    # -----------------------------------------------------
+
     with col2:
 
         st.markdown(
@@ -322,7 +459,7 @@ def mul():
     st.markdown("")
 
     calculate = st.button(
-        "✖️ Calculate Multiplication",
+        "Calculate",
         key="mul_button",
         use_container_width=True
     )
@@ -341,7 +478,9 @@ def mul():
 
                 for k in range(3):
 
-                    value += A[i][k] * B[k][j]
+                    value += (
+                        A[i][k] * B[k][j]
+                    )
 
                 row.append(value)
 
@@ -362,7 +501,7 @@ def mul():
 def determinant():
 
     st.markdown(
-        '<div class="matrix-title">Determinant of a 3 × 3 Matrix</div>',
+        '<div class="matrix-title">Determinant</div>',
         unsafe_allow_html=True
     )
 
@@ -374,7 +513,7 @@ def determinant():
     A = get_matrix("A_det")
 
     calculate = st.button(
-        "📐 Calculate Determinant",
+        "Calculate",
         key="det_button",
         use_container_width=True
     )
@@ -401,8 +540,16 @@ def determinant():
             unsafe_allow_html=True
         )
 
+        if float(det_value).is_integer():
+
+            det_display = int(det_value)
+
+        else:
+
+            det_display = round(det_value, 6)
+
         st.markdown(
-            f'<div class="det-result">{det_value:g}</div>',
+            f'<div class="det-result">{det_display}</div>',
             unsafe_allow_html=True
         )
 
@@ -426,7 +573,7 @@ def transpose():
     A = get_matrix("A_transpose")
 
     calculate = st.button(
-        "🔄 Calculate Transpose",
+        "Calculate",
         key="transpose_button",
         use_container_width=True
     )
@@ -441,7 +588,9 @@ def transpose():
 
             for j in range(3):
 
-                row.append(A[j][i])
+                row.append(
+                    A[j][i]
+                )
 
             result.append(row)
 
@@ -460,7 +609,7 @@ def transpose():
 def inverse():
 
     st.markdown(
-        '<div class="matrix-title">Inverse of a 3 × 3 Matrix</div>',
+        '<div class="matrix-title">Matrix Inverse</div>',
         unsafe_allow_html=True
     )
 
@@ -472,14 +621,17 @@ def inverse():
     A = get_matrix("A_inverse")
 
     calculate = st.button(
-        "🔁 Calculate Inverse",
+        "Calculate",
         key="inverse_button",
         use_container_width=True
     )
 
     if calculate:
 
-        # Calculate determinant
+        # -------------------------------------------------
+        # Determinant
+        # -------------------------------------------------
+
         det_value = (
             A[0][0] * (
                 A[1][1] * A[2][2]
@@ -495,67 +647,101 @@ def inverse():
             )
         )
 
-        # Check whether inverse exists
+        # -------------------------------------------------
+        # Check determinant
+        # -------------------------------------------------
+
         if abs(det_value) < 1e-10:
 
             st.error(
-                "This matrix does not have an inverse because "
-                "its determinant is 0."
+                "The inverse does not exist because "
+                "the determinant of the matrix is 0."
             )
 
-        else:
+            return
 
-            # Cofactor matrix
-            C = [
-                [
-                    A[1][1] * A[2][2] - A[1][2] * A[2][1],
-                    -(A[1][0] * A[2][2] - A[1][2] * A[2][0]),
-                    A[1][0] * A[2][1] - A[1][1] * A[2][0]
-                ],
-                [
-                    -(A[0][1] * A[2][2] - A[0][2] * A[2][1]),
-                    A[0][0] * A[2][2] - A[0][2] * A[2][0],
-                    -(A[0][0] * A[2][1] - A[0][1] * A[2][0])
-                ],
-                [
-                    A[0][1] * A[1][2] - A[0][2] * A[1][1],
-                    -(A[0][0] * A[1][2] - A[0][2] * A[1][0]),
-                    A[0][0] * A[1][1] - A[0][1] * A[1][0]
-                ]
+        # -------------------------------------------------
+        # Cofactor Matrix
+        # -------------------------------------------------
+
+        C = [
+
+            [
+                A[1][1] * A[2][2]
+                - A[1][2] * A[2][1],
+
+                -(A[1][0] * A[2][2]
+                  - A[1][2] * A[2][0]),
+
+                A[1][0] * A[2][1]
+                - A[1][1] * A[2][0]
+            ],
+
+            [
+                -(A[0][1] * A[2][2]
+                  - A[0][2] * A[2][1]),
+
+                A[0][0] * A[2][2]
+                - A[0][2] * A[2][0],
+
+                -(A[0][0] * A[2][1]
+                  - A[0][1] * A[2][0])
+            ],
+
+            [
+                A[0][1] * A[1][2]
+                - A[0][2] * A[1][1],
+
+                -(A[0][0] * A[1][2]
+                  - A[0][2] * A[1][0]),
+
+                A[0][0] * A[1][1]
+                - A[0][1] * A[1][0]
             ]
+        ]
 
-            # Adjugate = transpose of cofactor matrix
-            adjugate = []
+        # -------------------------------------------------
+        # Adjugate Matrix
+        # -------------------------------------------------
 
-            for i in range(3):
+        adjugate = []
 
-                row = []
+        for i in range(3):
 
-                for j in range(3):
+            row = []
 
-                    row.append(C[j][i])
+            for j in range(3):
 
-                adjugate.append(row)
+                row.append(
+                    C[j][i]
+                )
 
-            # Inverse = adjugate / determinant
-            result = []
+            adjugate.append(row)
 
-            for i in range(3):
+        # -------------------------------------------------
+        # Inverse Matrix
+        # -------------------------------------------------
 
-                row = []
+        result = []
 
-                for j in range(3):
+        for i in range(3):
 
-                    row.append(adjugate[i][j] / det_value)
+            row = []
 
-                result.append(row)
+            for j in range(3):
 
-            st.markdown(
-                '<div class="result-title">Inverse</div>',
-                unsafe_allow_html=True
-            )
+                row.append(
+                    adjugate[i][j] / det_value
+                )
 
-            display_matrix(result)
+            result.append(row)
+
+        st.markdown(
+            '<div class="result-title">Inverse</div>',
+            unsafe_allow_html=True
+        )
+
+        display_matrix(result)
 
 
 # =========================================================
@@ -607,14 +793,126 @@ elif operation == "Inverse":
 
 
 # =========================================================
+# ARROW KEY NAVIGATION
+# =========================================================
+
+st.markdown(
+    """
+    <script>
+    (function() {
+
+        function setupMatrixNavigation() {
+
+            const inputs = Array.from(
+                window.parent.document.querySelectorAll(
+                    'input[type="number"]'
+                )
+            );
+
+            if (inputs.length === 0) {
+                return;
+            }
+
+            inputs.forEach(function(input) {
+
+                if (input.dataset.arrowNavigation === "true") {
+                    return;
+                }
+
+                input.dataset.arrowNavigation = "true";
+
+                input.addEventListener("keydown", function(event) {
+
+                    const currentIndex = inputs.indexOf(input);
+
+                    if (currentIndex === -1) {
+                        return;
+                    }
+
+                    let targetIndex = -1;
+
+                    /*
+                     * Matrix has 3 columns.
+                     *
+                     * Right  -> next element
+                     * Left   -> previous element
+                     * Down   -> same column, next row
+                     * Up     -> same column, previous row
+                     */
+
+                    if (event.key === "ArrowRight") {
+
+                        targetIndex = currentIndex + 1;
+
+                    } else if (event.key === "ArrowLeft") {
+
+                        targetIndex = currentIndex - 1;
+
+                    } else if (event.key === "ArrowDown") {
+
+                        targetIndex = currentIndex + 3;
+
+                    } else if (event.key === "ArrowUp") {
+
+                        targetIndex = currentIndex - 3;
+
+                    } else {
+
+                        return;
+                    }
+
+                    /*
+                     * Don't move outside the current matrix.
+                     */
+
+                    if (
+                        targetIndex >= 0 &&
+                        targetIndex < inputs.length
+                    ) {
+
+                        event.preventDefault();
+
+                        inputs[targetIndex].focus();
+
+                        inputs[targetIndex].select();
+                    }
+
+                });
+
+            }
+
+        }
+
+        setupMatrixNavigation();
+
+        /*
+         * Streamlit reruns the page when values change,
+         * so check again periodically for newly-created inputs.
+         */
+
+        setInterval(
+            setupMatrixNavigation,
+            500
+        );
+
+    })();
+    </script>
+    """,
+    unsafe_allow_html=True
+)
+
+
+# =========================================================
 # FOOTER
 # =========================================================
 
 st.markdown("---")
 
 st.markdown(
-    "<p style='text-align:center; color:gray;'>"
-    "3 × 3 Matrix Calculator using Streamlit"
-    "</p>",
+    """
+    <p style="text-align:center; color:gray;">
+        3 × 3 Matrix Calculator using Streamlit
+    </p>
+    """,
     unsafe_allow_html=True
 )
