@@ -2,43 +2,160 @@ import streamlit as st
 
 
 # ---------------------------------------------------------
-# Helper function to get a 3x3 matrix
+# PAGE CONFIGURATION
 # ---------------------------------------------------------
+
+st.set_page_config(
+    page_title="3 × 3 Matrix Calculator",
+    page_icon="🔢",
+    layout="wide"
+)
+
+
+# ---------------------------------------------------------
+# MATRIX INPUT FUNCTION
+# ---------------------------------------------------------
+
 def get_matrix(prefix):
+    """
+    Creates a 3x3 matrix of input boxes.
+    The inputs are visually aligned like a matrix.
+    """
+
     matrix = []
 
     for i in range(3):
+        cols = st.columns([1, 1, 1])
+
         row = []
+
         for j in range(3):
-            value = st.number_input(
-                f"{prefix}[{i + 1},{j + 1}]",
-                value=0,
-                step=1,
-                key=f"{prefix}_{i}_{j}"
-            )
-            row.append(value)
+            with cols[j]:
+                value = st.number_input(
+                    "",
+                    value=0,
+                    step=1,
+                    key=f"{prefix}_{i}_{j}",
+                    label_visibility="collapsed"
+                )
+
+                row.append(value)
+
         matrix.append(row)
 
     return matrix
 
 
 # ---------------------------------------------------------
+# DISPLAY MATRIX
+# ---------------------------------------------------------
+
+def display_matrix(matrix, title=""):
+    """
+    Displays a matrix with brackets around it.
+    """
+
+    if title:
+        st.markdown(
+            f"<h3 style='text-align:center;'>{title}</h3>",
+            unsafe_allow_html=True
+        )
+
+    st.markdown(
+        """
+        <style>
+        .matrix-bracket {
+            font-size: 70px;
+            line-height: 1;
+            color: #444;
+        }
+
+        .matrix-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: -20px;
+            margin-bottom: 20px;
+        }
+
+        .matrix-result {
+            font-size: 22px;
+            text-align: center;
+            padding: 10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+# ---------------------------------------------------------
 # ADDITION
 # ---------------------------------------------------------
-def add():
-    st.subheader("Matrix Addition")
 
-    col1, col2 = st.columns(2)
+def add():
+
+    st.markdown(
+        "<h2 style='text-align:center;'>Matrix Addition</h2>",
+        unsafe_allow_html=True
+    )
+
+    col1, op, col2 = st.columns([5, 1, 5])
 
     with col1:
-        st.write("Matrix A")
+
+        st.markdown(
+            "<h3 style='text-align:center;'>Matrix A</h3>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<div style='text-align:center; font-size:70px; line-height:0.5;'>[</div>",
+            unsafe_allow_html=True
+        )
+
         A = get_matrix("A_add")
 
+        st.markdown(
+            "<div style='text-align:center; font-size:70px; line-height:0.5;'>]</div>",
+            unsafe_allow_html=True
+        )
+
+    with op:
+
+        st.markdown(
+            "<div style='font-size:45px; text-align:center; padding-top:100px;'>+</div>",
+            unsafe_allow_html=True
+        )
+
     with col2:
-        st.write("Matrix B")
+
+        st.markdown(
+            "<h3 style='text-align:center;'>Matrix B</h3>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<div style='text-align:center; font-size:70px; line-height:0.5;'>[</div>",
+            unsafe_allow_html=True
+        )
+
         B = get_matrix("B_add")
 
-    if st.button("Calculate Addition", key="add_button"):
+        st.markdown(
+            "<div style='text-align:center; font-size:70px; line-height:0.5;'>]</div>",
+            unsafe_allow_html=True
+        )
+
+    st.markdown("")
+
+    calculate = st.button(
+        "Calculate",
+        key="add_button",
+        use_container_width=True
+    )
+
+    if calculate:
 
         A11 = A[0][0] + B[0][0]
         A12 = A[0][1] + B[0][1]
@@ -58,27 +175,79 @@ def add():
             [A31, A32, A33]
         ]
 
-        st.write("### Result")
+        st.markdown(
+            "<h2 style='text-align:center;'>Result</h2>",
+            unsafe_allow_html=True
+        )
+
         st.table(result)
 
 
 # ---------------------------------------------------------
 # SUBTRACTION
 # ---------------------------------------------------------
-def sub():
-    st.subheader("Matrix Subtraction")
 
-    col1, col2 = st.columns(2)
+def sub():
+
+    st.markdown(
+        "<h2 style='text-align:center;'>Matrix Subtraction</h2>",
+        unsafe_allow_html=True
+    )
+
+    col1, op, col2 = st.columns([5, 1, 5])
 
     with col1:
-        st.write("Matrix A")
+
+        st.markdown(
+            "<h3 style='text-align:center;'>Matrix A</h3>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>[</div>",
+            unsafe_allow_html=True
+        )
+
         A = get_matrix("A_sub")
 
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>]</div>",
+            unsafe_allow_html=True
+        )
+
+    with op:
+
+        st.markdown(
+            "<div style='font-size:45px; text-align:center; padding-top:100px;'>−</div>",
+            unsafe_allow_html=True
+        )
+
     with col2:
-        st.write("Matrix B")
+
+        st.markdown(
+            "<h3 style='text-align:center;'>Matrix B</h3>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>[</div>",
+            unsafe_allow_html=True
+        )
+
         B = get_matrix("B_sub")
 
-    if st.button("Calculate Subtraction", key="sub_button"):
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>]</div>",
+            unsafe_allow_html=True
+        )
+
+    calculate = st.button(
+        "Calculate",
+        key="sub_button",
+        use_container_width=True
+    )
+
+    if calculate:
 
         A11 = A[0][0] - B[0][0]
         A12 = A[0][1] - B[0][1]
@@ -98,63 +267,133 @@ def sub():
             [A31, A32, A33]
         ]
 
-        st.write("### Result")
+        st.markdown(
+            "<h2 style='text-align:center;'>Result</h2>",
+            unsafe_allow_html=True
+        )
+
         st.table(result)
 
 
 # ---------------------------------------------------------
 # MULTIPLICATION
 # ---------------------------------------------------------
-def mul():
-    st.subheader("Matrix Multiplication")
 
-    col1, col2 = st.columns(2)
+def mul():
+
+    st.markdown(
+        "<h2 style='text-align:center;'>Matrix Multiplication</h2>",
+        unsafe_allow_html=True
+    )
+
+    col1, op, col2 = st.columns([5, 1, 5])
 
     with col1:
-        st.write("Matrix A")
+
+        st.markdown(
+            "<h3 style='text-align:center;'>Matrix A</h3>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>[</div>",
+            unsafe_allow_html=True
+        )
+
         A = get_matrix("A_mul")
 
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>]</div>",
+            unsafe_allow_html=True
+        )
+
+    with op:
+
+        st.markdown(
+            "<div style='font-size:45px; text-align:center; padding-top:100px;'>×</div>",
+            unsafe_allow_html=True
+        )
+
     with col2:
-        st.write("Matrix B")
+
+        st.markdown(
+            "<h3 style='text-align:center;'>Matrix B</h3>",
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>[</div>",
+            unsafe_allow_html=True
+        )
+
         B = get_matrix("B_mul")
 
-    if st.button("Calculate Multiplication", key="mul_button"):
+        st.markdown(
+            "<div style='text-align:center; font-size:70px;'>]</div>",
+            unsafe_allow_html=True
+        )
 
-        A11 = (A[0][0] * B[0][0]) + \
-              (A[0][1] * B[1][0]) + \
-              (A[0][2] * B[2][0])
+    calculate = st.button(
+        "Calculate",
+        key="mul_button",
+        use_container_width=True
+    )
 
-        A12 = (A[0][0] * B[0][1]) + \
-              (A[0][1] * B[1][1]) + \
-              (A[0][2] * B[2][1])
+    if calculate:
 
-        A13 = (A[0][0] * B[0][2]) + \
-              (A[0][1] * B[1][2]) + \
-              (A[0][2] * B[2][2])
+        A11 = (
+            A[0][0] * B[0][0]
+            + A[0][1] * B[1][0]
+            + A[0][2] * B[2][0]
+        )
 
-        A21 = (A[1][0] * B[0][0]) + \
-              (A[1][1] * B[1][0]) + \
-              (A[1][2] * B[2][0])
+        A12 = (
+            A[0][0] * B[0][1]
+            + A[0][1] * B[1][1]
+            + A[0][2] * B[2][1]
+        )
 
-        A22 = (A[1][0] * B[0][1]) + \
-              (A[1][1] * B[1][1]) + \
-              (A[1][2] * B[2][1])
+        A13 = (
+            A[0][0] * B[0][2]
+            + A[0][1] * B[1][2]
+            + A[0][2] * B[2][2]
+        )
 
-        A23 = (A[1][0] * B[0][2]) + \
-              (A[1][1] * B[1][2]) + \
-              (A[1][2] * B[2][2])
+        A21 = (
+            A[1][0] * B[0][0]
+            + A[1][1] * B[1][0]
+            + A[1][2] * B[2][0]
+        )
 
-        A31 = (A[2][0] * B[0][0]) + \
-              (A[2][1] * B[1][0]) + \
-              (A[2][2] * B[2][0])
+        A22 = (
+            A[1][0] * B[0][1]
+            + A[1][1] * B[1][1]
+            + A[1][2] * B[2][1]
+        )
 
-        A32 = (A[2][0] * B[0][1]) + \
-              (A[2][1] * B[1][1]) + \
-              (A[2][2] * B[2][1])
+        A23 = (
+            A[1][0] * B[0][2]
+            + A[1][1] * B[1][2]
+            + A[1][2] * B[2][2]
+        )
 
-        A33 = (A[2][0] * B[0][2]) + \
-              (A[2][1] * B[1][2]) + \
-              (A[2][2] * B[2][2])
+        A31 = (
+            A[2][0] * B[0][0]
+            + A[2][1] * B[1][0]
+            + A[2][2] * B[2][0]
+        )
+
+        A32 = (
+            A[2][0] * B[0][1]
+            + A[2][1] * B[1][1]
+            + A[2][2] * B[2][1]
+        )
+
+        A33 = (
+            A[2][0] * B[0][2]
+            + A[2][1] * B[1][2]
+            + A[2][2] * B[2][2]
+        )
 
         result = [
             [A11, A12, A13],
@@ -162,137 +401,23 @@ def mul():
             [A31, A32, A33]
         ]
 
-        st.write("### Result")
+        st.markdown(
+            "<h2 style='text-align:center;'>Result</h2>",
+            unsafe_allow_html=True
+        )
+
         st.table(result)
 
 
 # ---------------------------------------------------------
 # DETERMINANT
 # ---------------------------------------------------------
+
 def det():
-    st.subheader("3 × 3 Matrix Determinant")
 
-    A = get_matrix("A_det")
-
-    if st.button("Calculate Determinant", key="det_button"):
-
-        a11 = A[0][0]
-        a12 = A[0][1]
-        a13 = A[0][2]
-
-        a21 = A[1][0]
-        a22 = A[1][1]
-        a23 = A[1][2]
-
-        a31 = A[2][0]
-        a32 = A[2][1]
-        a33 = A[2][2]
-
-        D = (
-            a11 * ((a22 * a33) - (a23 * a32))
-            - a12 * ((a21 * a33) - (a23 * a31))
-            + a13 * ((a21 * a32) - (a22 * a31))
-        )
-
-        st.success(f"Determinant = {D}")
-
-
-# ---------------------------------------------------------
-# INVERSE
-# ---------------------------------------------------------
-def inv():
-    st.subheader("3 × 3 Matrix Inverse")
-
-    A = get_matrix("A_inv")
-
-    if st.button("Calculate Inverse", key="inv_button"):
-
-        a11 = A[0][0]
-        a12 = A[0][1]
-        a13 = A[0][2]
-
-        a21 = A[1][0]
-        a22 = A[1][1]
-        a23 = A[1][2]
-
-        a31 = A[2][0]
-        a32 = A[2][1]
-        a33 = A[2][2]
-
-        # Determinant
-        D = (
-            a11 * ((a22 * a33) - (a23 * a32))
-            - a12 * ((a21 * a33) - (a23 * a31))
-            + a13 * ((a21 * a32) - (a22 * a31))
-        )
-
-        if D == 0:
-            st.warning("Inverse does not exist because determinant is 0.")
-
-        else:
-
-            A11 = (a22 * a33 - a23 * a32) / D
-            A12 = -((a12 * a33) - (a13 * a32)) / D
-            A13 = (a12 * a23 - a13 * a22) / D
-
-            A21 = -((a21 * a33) - (a23 * a31)) / D
-            A22 = (a11 * a33 - a13 * a31) / D
-            A23 = -((a11 * a23) - (a13 * a21)) / D
-
-            A31 = (a21 * a32 - a22 * a31) / D
-            A32 = -((a11 * a32) - (a12 * a31)) / D
-            A33 = (a11 * a22 - a12 * a21) / D
-
-            result = [
-                [A11, A12, A13],
-                [A21, A22, A23],
-                [A31, A32, A33]
-            ]
-
-            st.write("### Inverse")
-            st.table(result)
-
-
-# ---------------------------------------------------------
-# MAIN PROGRAM
-# ---------------------------------------------------------
-def main():
-
-    st.set_page_config(
-        page_title="Matrix Calculator",
-        page_icon="🔢",
-        layout="centered"
+    st.markdown(
+        "<h2 style='text-align:center;'>Determinant</h2>",
+        unsafe_allow_html=True
     )
 
-    st.title("🔢 3 × 3 Matrix Calculator")
-    st.write("Perform matrix addition, subtraction, multiplication, determinant and inverse.")
-
-    operation = st.sidebar.selectbox(
-        "Select Operation",
-        [
-            "Add",
-            "Subtract",
-            "Multiply",
-            "Determinant",
-            "Inverse"
-        ]
-    )
-
-    if operation == "Add":
-        add()
-
-    elif operation == "Subtract":
-        sub()
-
-    elif operation == "Multiply":
-        mul()
-
-    elif operation == "Determinant":
-        det()
-
-    elif operation == "Inverse":
-        inv()
-
-
-if __name__ == "__main__":
-    main()
+    st.markdown
