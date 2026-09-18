@@ -169,16 +169,9 @@ def display_matrix(matrix):
             margin: 15px auto 30px auto;
         }
 
-        .result-bracket {
-            font-size: 100px;
-            font-weight: 200;
-            line-height: 0.8;
-            color: #333;
-        }
-
         .result-table {
             border-collapse: collapse;
-            margin: 0 8px;
+            margin: 0 auto;
         }
 
         .result-table td {
@@ -192,55 +185,37 @@ def display_matrix(matrix):
         unsafe_allow_html=True
     )
 
-    # Format values properly
-    formatted_matrix = []
+    html = """
+    <div class="result-matrix">
+        <table class="result-table">
+    """
 
     for row in matrix:
 
-        formatted_row = []
+        html += "<tr>"
 
         for value in row:
 
             value = float(value)
 
             if value.is_integer():
-                formatted_row.append(str(int(value)))
+                value = int(value)
             else:
-                formatted_row.append(f"{value:.6f}".rstrip("0").rstrip("."))
+                value = round(value, 6)
 
-        formatted_matrix.append(formatted_row)
+            html += f"<td>{value}</td>"
 
-    # Use Streamlit columns instead of raw HTML table
-    col_left, col_matrix, col_right = st.columns([1, 6, 1])
+        html += "</tr>"
 
-    with col_left:
-        st.markdown(
-            '<div class="result-bracket">[</div>',
-            unsafe_allow_html=True
-        )
+    html += """
+        </table>
+    </div>
+    """
 
-    with col_matrix:
-
-        for row in formatted_matrix:
-
-            cols = st.columns(3)
-
-            for j in range(3):
-
-                with cols[j]:
-                    st.markdown(
-                        f"<div style='text-align:center; "
-                        f"font-size:22px; padding:10px;'>"
-                        f"{row[j]}"
-                        f"</div>",
-                        unsafe_allow_html=True
-                    )
-
-    with col_right:
-        st.markdown(
-            '<div class="result-bracket">]</div>',
-            unsafe_allow_html=True
-        )
+    st.markdown(
+        html,
+        unsafe_allow_html=True
+    )
 
 
 # =========================================================
