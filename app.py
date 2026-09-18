@@ -198,7 +198,7 @@ def display_matrix(matrix):
             if value.is_integer():
                 display_value = str(int(value))
             else:
-                display_value = f"{value:.6f}".rstrip("0").rstrip(".")
+                display_value = f"{value:.3f}".rstrip("0").rstrip(".")
 
             html += f'<div class="result-value">{display_value}</div>'
 
