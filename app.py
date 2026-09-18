@@ -766,6 +766,10 @@ elif operation == "Inverse":
 # ARROW KEY NAVIGATION
 # =========================================================
 
+# =========================================================
+# ARROW KEY NAVIGATION
+# =========================================================
+
 st.markdown(
     """
     <script>
@@ -783,69 +787,86 @@ st.markdown(
                 return;
             }
 
-            inputs.forEach(function(input) {
+            /*
+             * Group inputs into separate 3 × 3 matrices.
+             * Each matrix contains exactly 9 inputs.
+             */
 
-                if (input.dataset.arrowNavigation === "true") {
-                    return;
-                }
+            for (let start = 0; start < inputs.length; start += 9) {
 
-                input.dataset.arrowNavigation = "true";
+                const matrix = inputs.slice(start, start + 9);
 
-                input.addEventListener("keydown", function(event) {
+                matrix.forEach(function(input, index) {
 
-                    const currentIndex = inputs.indexOf(input);
-
-                    if (currentIndex === -1) {
+                    if (input.dataset.arrowNavigation === "true") {
                         return;
                     }
 
-                    let targetIndex = -1;
+                    input.dataset.arrowNavigation = "true";
 
-                    /*
-                     * Matrix has 3 columns.
-                     *
-                     * Right  -> next element
-                     * Left   -> previous element
-                     * Down   -> same column, next row
-                     * Up     -> same column, previous row
-                     */
+                    input.addEventListener("keydown", function(event) {
 
-                    if (event.key === "ArrowRight") {
+                        let targetIndex = -1;
 
-                        targetIndex = currentIndex + 1;
+                        const row = Math.floor(index / 3);
+                        const col = index % 3;
 
-                    } else if (event.key === "ArrowLeft") {
+                        /*
+                         * Right → next column
+                         * Left  → previous column
+                         * Down  → next row
+                         * Up    → previous row
+                         */
 
-                        targetIndex = currentIndex - 1;
+                        if (event.key === "ArrowRight") {
 
-                    } else if (event.key === "ArrowDown") {
+                            if (col < 2) {
+                                targetIndex = index + 1;
+                            }
 
-                        targetIndex = currentIndex + 3;
+                        }
 
-                    } else if (event.key === "ArrowUp") {
+                        else if (event.key === "ArrowLeft") {
 
-                        targetIndex = currentIndex - 3;
+                            if (col > 0) {
+                                targetIndex = index - 1;
+                            }
 
-                    } else {
+                        }
 
-                        return;
-                    }
+                        else if (event.key === "ArrowDown") {
 
-                    /*
-                     * Don't move outside the current matrix.
-                     */
+                            if (row < 2) {
+                                targetIndex = index + 3;
+                            }
 
-                    if (
-                        targetIndex >= 0 &&
-                        targetIndex < inputs.length
-                    ) {
+                        }
 
-                        event.preventDefault();
+                        else if (event.key === "ArrowUp") {
 
-                        inputs[targetIndex].focus();
+                            if (row > 0) {
+                                targetIndex = index - 3;
+                            }
 
-                        inputs[targetIndex].select();
-                    }
+                        }
+
+                        /*
+                         * Move to the target textbox.
+                         */
+
+                        if (
+                            targetIndex >= 0 &&
+                            targetIndex < matrix.length
+                        ) {
+
+                            event.preventDefault();
+
+                            matrix[targetIndex].focus();
+                            matrix[targetIndex].select();
+
+                        }
+
+                    });
 
                 });
 
@@ -856,8 +877,8 @@ st.markdown(
         setupMatrixNavigation();
 
         /*
-         * Streamlit reruns the page when values change,
-         * so check again periodically for newly-created inputs.
+         * Streamlit reruns the page when inputs change,
+         * so check periodically for newly-created inputs.
          */
 
         setInterval(
