@@ -3,7 +3,117 @@ import streamlit as st
 
 # =========================================================
 # PAGE CONFIGURATION
-# =========================================================
+# =========================================================<script>
+(function () {
+
+    function setupMatrixNavigation() {
+
+        const doc = window.parent.document;
+
+        // Get all number inputs currently visible
+        const inputs = Array.from(
+            doc.querySelectorAll('input[type="number"]')
+        );
+
+        if (inputs.length === 0) {
+            return;
+        }
+
+        inputs.forEach(function (input, index) {
+
+            // Prevent adding the listener multiple times
+            if (input.dataset.arrowNavigation === "true") {
+                return;
+            }
+
+            input.dataset.arrowNavigation = "true";
+
+            input.addEventListener("keydown", function (event) {
+
+                let target = null;
+
+                /*
+                 * Find the position of this input
+                 * inside its 3 × 3 matrix.
+                 * Every matrix has 9 inputs.
+                 */
+
+                const matrixStart = Math.floor(index / 9) * 9;
+                const position = index - matrixStart;
+                const row = Math.floor(position / 3);
+                const col = position % 3;
+
+                // RIGHT
+                if (event.key === "ArrowRight") {
+                    if (col < 2) {
+                        target = inputs[index + 1];
+                    }
+                }
+
+                // LEFT
+                else if (event.key === "ArrowLeft") {
+                    if (col > 0) {
+                        target = inputs[index - 1];
+                    }
+                }
+
+                // DOWN
+                else if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    if (row < 2) {
+                        target = inputs[index + 3];
+                    }
+                }
+
+                // UP
+                else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    if (row > 0) {
+                        target = inputs[index - 3];
+                    }
+                }
+
+                // MOVE TO TARGET
+                if (target) {
+                    target.focus();
+                    setTimeout(function () {
+                        target.select();
+                    }, 0);
+                }
+
+            }); // close keydown listener
+
+        }); // close inputs.forEach
+
+    } // close setupMatrixNavigation
+
+
+    // Run initially
+    setupMatrixNavigation();
+
+    // Streamlit recreates widgets during reruns.
+    // Detect newly created inputs.
+    const observer = new MutationObserver(function () {
+        setupMatrixNavigation();
+    });
+
+    observer.observe(
+        window.parent.document.body,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
+
+    // Extra check for Streamlit rerenders
+    setInterval(setupMatrixNavigation, 500);
+
+})();
+</script>
 
 st.set_page_config(
     page_title="3 × 3 Matrix Calculator",
@@ -773,171 +883,116 @@ elif operation == "Inverse":
 st.markdown(
     """
     <script>
-    (function () {
+(function () {
 
-        function setupMatrixNavigation() {
+    function setupMatrixNavigation() {
 
-            const doc = window.parent.document;
+        const doc = window.parent.document;
 
-            // Get all number inputs currently visible
-            const inputs = Array.from(
-                doc.querySelectorAll('input[type="number"]')
-            );
+        // Get all number inputs currently visible
+        const inputs = Array.from(
+            doc.querySelectorAll('input[type="number"]')
+        );
 
-            if (inputs.length === 0) {
+        if (inputs.length === 0) {
+            return;
+        }
+
+        inputs.forEach(function (input, index) {
+
+            // Prevent adding the listener multiple times
+            if (input.dataset.arrowNavigation === "true") {
                 return;
             }
 
-            inputs.forEach(function (input, index) {
+            input.dataset.arrowNavigation = "true";
 
-                // Prevent adding the listener multiple times
-                if (input.dataset.arrowNavigation === "true") {
-                    return;
+            input.addEventListener("keydown", function (event) {
+
+                let target = null;
+
+                /*
+                 * Find the position of this input
+                 * inside its 3 × 3 matrix.
+                 * Every matrix has 9 inputs.
+                 */
+
+                const matrixStart = Math.floor(index / 9) * 9;
+                const position = index - matrixStart;
+                const row = Math.floor(position / 3);
+                const col = position % 3;
+
+                // RIGHT
+                if (event.key === "ArrowRight") {
+                    if (col < 2) {
+                        target = inputs[index + 1];
+                    }
                 }
 
-                input.dataset.arrowNavigation = "true";
-
-                input.addEventListener("keydown", function (event) {
-
-                    let target = null;
-
-                    /*
-                     * Find the position of this input
-                     * inside its 3 × 3 matrix.
-                     *
-                     * Every matrix has 9 inputs.
-                     */
-
-                    const matrixStart =
-                        Math.floor(index / 9) * 9;
-
-                    const position =
-                        index - matrixStart;
-
-                    const row =
-                        Math.floor(position / 3);
-
-                    const col =
-                        position % 3;
-
-
-                    // =====================================
-                    // RIGHT ARROW
-                    // =====================================
-
-                    if (event.key === "ArrowRight") {
-
-                        if (col < 2) {
-                            target = inputs[index + 1];
-                        }
-
+                // LEFT
+                else if (event.key === "ArrowLeft") {
+                    if (col > 0) {
+                        target = inputs[index - 1];
                     }
+                }
 
-
-                    // =====================================
-                    // LEFT ARROW
-                    // =====================================
-
-                    else if (event.key === "ArrowLeft") {
-
-                        if (col > 0) {
-                            target = inputs[index - 1];
-                        }
-
+                // DOWN
+                else if (event.key === "ArrowDown") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    if (row < 2) {
+                        target = inputs[index + 3];
                     }
+                }
 
-
-                    // =====================================
-                    // DOWN ARROW
-                    // =====================================
-
-                    /*
-                     * DOWN
-                     */
-                    
-                    else if (event.key === "ArrowDown") {
-                    
-                        event.preventDefault();
-                        event.stopPropagation();
-                        event.stopImmediatePropagation();
-                    
-                        if (row < 2) {
-                            target =
-                                inputs[index + 3];
-                        }
-                    
+                // UP
+                else if (event.key === "ArrowUp") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    if (row > 0) {
+                        target = inputs[index - 3];
                     }
+                }
 
-                    // =====================================
-                    // UP ARROW
-                    // =====================================
+                // MOVE TO TARGET
+                if (target) {
+                    target.focus();
+                    setTimeout(function () {
+                        target.select();
+                    }, 0);
+                }
 
-                    /*
-                     * UP
-                     */
-                    
-                    else if (event.key === "ArrowUp") {
-                    
-                        event.preventDefault();
-                        event.stopPropagation();
-                        event.stopImmediatePropagation();
-                    
-                        if (row > 0) {
-                            target =
-                                inputs[index - 3];
-                        }
-                    
-                    }
+            }); // close keydown listener
+
+        }); // close inputs.forEach
+
+    } // close setupMatrixNavigation
 
 
-                    // =====================================
-                    // MOVE TO TARGET
-                    // =====================================
+    // Run initially
+    setupMatrixNavigation();
 
-                   /*
-                     * Move to target
-                     */
-                    
-                    if (target) {
-                    
-                        target.focus();
-                    
-                        setTimeout(function() {
-                            target.select();
-                        }, 0);
-                    
-                    }
-
-        // Run initially
+    // Streamlit recreates widgets during reruns.
+    // Detect newly created inputs.
+    const observer = new MutationObserver(function () {
         setupMatrixNavigation();
+    });
 
+    observer.observe(
+        window.parent.document.body,
+        {
+            childList: true,
+            subtree: true
+        }
+    );
 
-        // Streamlit recreates widgets during reruns.
-        // Detect newly created inputs.
+    // Extra check for Streamlit rerenders
+    setInterval(setupMatrixNavigation, 500);
 
-        const observer = new MutationObserver(function () {
-
-            setupMatrixNavigation();
-
-        });
-
-        observer.observe(
-            window.parent.document.body,
-            {
-                childList: true,
-                subtree: true
-            }
-        );
-
-
-        // Extra check for Streamlit rerenders
-        setInterval(
-            setupMatrixNavigation,
-            500
-        );
-
-    })();
-    </script>
+})();
+</script>
     """,
     unsafe_allow_html=True
 )
