@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 # =========================================================
@@ -766,7 +767,7 @@ elif operation == "Inverse":
 # ARROW KEY NAVIGATION
 # =========================================================
 
-st.markdown(
+components.html(
     """
     <script>
     (function () {
@@ -880,7 +881,7 @@ st.markdown(
     })();
     </script>
     """,
-    unsafe_allow_html=True
+    height=0,
 )
 
 # =========================================================
