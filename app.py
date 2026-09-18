@@ -851,25 +851,42 @@ st.markdown(
                     // DOWN ARROW
                     // =====================================
 
+                    /*
+                     * DOWN
+                     */
+                    
                     else if (event.key === "ArrowDown") {
-
+                    
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                    
                         if (row < 2) {
-                            target = inputs[index + 3];
+                            target =
+                                inputs[index + 3];
                         }
-
+                    
                     }
-
 
                     // =====================================
                     // UP ARROW
                     // =====================================
 
+                    /*
+                     * UP
+                     */
+                    
                     else if (event.key === "ArrowUp") {
-
+                    
+                        event.preventDefault();
+                        event.stopPropagation();
+                        event.stopImmediatePropagation();
+                    
                         if (row > 0) {
-                            target = inputs[index - 3];
+                            target =
+                                inputs[index - 3];
                         }
-
+                    
                     }
 
 
@@ -877,26 +894,19 @@ st.markdown(
                     // MOVE TO TARGET
                     // =====================================
 
+                   /*
+                     * Move to target
+                     */
+                    
                     if (target) {
-
-                        event.preventDefault();
-                        event.stopPropagation();
-
+                    
                         target.focus();
-
-                        // Select the existing number
-                        setTimeout(function () {
+                    
+                        setTimeout(function() {
                             target.select();
                         }, 0);
-
+                    
                     }
-
-                }, true);
-
-            });
-
-        }
-
 
         // Run initially
         setupMatrixNavigation();
