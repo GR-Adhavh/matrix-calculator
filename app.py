@@ -766,135 +766,183 @@ elif operation == "Inverse":
 # ARROW KEY NAVIGATION
 # =========================================================
 
-# =========================================================
-# ARROW KEY NAVIGATION
-# =========================================================
-
-# =========================================================
-# ARROW KEY NAVIGATION
-# =========================================================
-
 st.markdown(
     """
     <script>
     (function() {
 
-        const doc = window.parent.document;
+        function setupArrowNavigation() {
 
-        // Prevent installing the listener multiple times
-        if (doc.__matrixArrowNavigationInstalled) {
-            return;
-        }
-
-        doc.__matrixArrowNavigationInstalled = true;
-
-        doc.addEventListener("keydown", function(event) {
-
-            // Only work with number input boxes
-            if (
-                !event.target ||
-                event.target.tagName !== "INPUT" ||
-                event.target.type !== "number"
-            ) {
-                return;
-            }
+            const doc = window.parent.document;
 
             const inputs = Array.from(
                 doc.querySelectorAll('input[type="number"]')
             );
 
-            const currentIndex = inputs.indexOf(event.target);
-
-            if (currentIndex === -1) {
+            if (inputs.length === 0) {
                 return;
             }
 
-            /*
-             * Each matrix contains 9 inputs.
-             *
-             * 0  1  2
-             * 3  4  5
-             * 6  7  8
-             */
+            inputs.forEach(function(input, index) {
 
-            const matrixStart =
-                Math.floor(currentIndex / 9) * 9;
-
-            const position =
-                currentIndex - matrixStart;
-
-            const row =
-                Math.floor(position / 3);
-
-            const col =
-                position % 3;
-
-            let targetIndex = -1;
-
-            // RIGHT
-            if (event.key === "ArrowRight") {
-
-                if (col < 2) {
-                    targetIndex = currentIndex + 1;
+                if (input.dataset.matrixNavigation === "true") {
+                    return;
                 }
 
+                input.dataset.matrixNavigation = "true";
+
+                input.addEventListener(
+                    "keydown",
+                    function(event) {
+
+                        let target = null;
+
+                        /*
+                         * Find which 3 × 3 matrix
+                         * this input belongs to.
+                         */
+
+                        const matrixStart =
+                            Math.floor(index / 9) * 9;
+
+                        const position =
+                            index - matrixStart;
+
+                        const row =
+                            Math.floor(position / 3);
+
+                        const col =
+                            position % 3;
+
+
+                        /*
+                         * RIGHT
+                         */
+
+                        if (event.key === "ArrowRight") {
+
+                            if (col < 2) {
+                                target =
+                                    inputs[index + 1];
+                            }
+
+                        }
+
+
+                        /*
+                         * LEFT
+                         */
+
+                        else if (event.key === "ArrowLeft") {
+
+                            if (col > 0) {
+                                target =
+                                    inputs[index - 1];
+                            }
+
+                        }
+
+
+                        /*
+                         * DOWN
+                         */
+
+                        else if (event.key === "ArrowDown") {
+
+                            if (row < 2) {
+                                target =
+                                    inputs[index + 3];
+                            }
+
+                        }
+
+
+                        /*
+                         * UP
+                         */
+
+                        else if (event.key === "ArrowUp") {
+
+                            if (row > 0) {
+                                target =
+                                    inputs[index - 3];
+                            }
+
+                        }
+
+
+                        /*
+                         * Move to target
+                         */
+
+                        if (target) {
+
+                            event.preventDefault();
+                            event.stopPropagation();
+                            event.stopImmediatePropagation();
+
+                            target.focus();
+
+                            setTimeout(function() {
+                                target.select();
+                            }, 0);
+
+                        }
+
+                    },
+                    true
+                );
+
+            });
+
+        }
+
+
+        /*
+         * Initial setup
+         */
+
+        setupArrowNavigation();
+
+
+        /*
+         * Streamlit constantly recreates
+         * elements during reruns.
+         *
+         * Watch for new inputs.
+         */
+
+        const observer =
+            new MutationObserver(function() {
+
+                setupArrowNavigation();
+
+            });
+
+
+        observer.observe(
+            window.parent.document.body,
+            {
+                childList: true,
+                subtree: true
             }
+        );
 
-            // LEFT
-            else if (event.key === "ArrowLeft") {
 
-                if (col > 0) {
-                    targetIndex = currentIndex - 1;
-                }
+        /*
+         * Also check periodically.
+         */
 
-            }
-
-            // DOWN
-            else if (event.key === "ArrowDown") {
-
-                if (row < 2) {
-                    targetIndex = currentIndex + 3;
-                }
-
-            }
-
-            // UP
-            else if (event.key === "ArrowUp") {
-
-                if (row > 0) {
-                    targetIndex = currentIndex - 3;
-                }
-
-            }
-
-            // Move focus
-            if (
-                targetIndex >= matrixStart &&
-                targetIndex < matrixStart + 9 &&
-                inputs[targetIndex]
-            ) {
-
-                // VERY IMPORTANT:
-                // Stop the number input from changing its value
-                event.preventDefault();
-                event.stopPropagation();
-
-                inputs[targetIndex].focus();
-
-                // Select the existing value
-                setTimeout(function() {
-                    inputs[targetIndex].select();
-                }, 0);
-            }
-
-        }, true);
+        setInterval(
+            setupArrowNavigation,
+            300
+        );
 
     })();
     </script>
     """,
     unsafe_allow_html=True
 )
-
 
 # =========================================================
 # FOOTER
