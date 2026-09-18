@@ -164,53 +164,47 @@ def display_matrix(matrix):
         <style>
         .result-matrix {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             margin: 15px auto 30px auto;
         }
 
-        .result-table {
-            border-collapse: collapse;
-            margin: 0 auto;
+        .result-row {
+            display: flex;
+            justify-content: center;
         }
 
-        .result-table td {
-            padding: 10px 25px;
+        .result-value {
+            width: 100px;
             text-align: center;
             font-size: 22px;
-            min-width: 70px;
+            padding: 8px;
         }
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    html = """
-    <div class="result-matrix">
-        <table class="result-table">
-    """
+    html = '<div class="result-matrix">'
 
     for row in matrix:
 
-        html += "<tr>"
+        html += '<div class="result-row">'
 
         for value in row:
 
             value = float(value)
 
             if value.is_integer():
-                value = int(value)
+                display_value = str(int(value))
             else:
-                value = round(value, 6)
+                display_value = f"{value:.6f}".rstrip("0").rstrip(".")
 
-            html += f"<td>{value}</td>"
+            html += f'<div class="result-value">{display_value}</div>'
 
-        html += "</tr>"
+        html += '</div>'
 
-    html += """
-        </table>
-    </div>
-    """
+    html += '</div>'
 
     st.markdown(
         html,
