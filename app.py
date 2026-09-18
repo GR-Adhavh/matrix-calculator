@@ -123,16 +123,8 @@ def get_matrix(prefix):
 
     matrix = []
 
-    # Create space for left bracket
-    outer_left, matrix_area, outer_right = st.columns(
-        [0.7, 5, 0.7]
-    )
-
-    with outer_left:
-        st.markdown(
-            '<div class="bracket bracket-left">[</div>',
-            unsafe_allow_html=True
-        )
+    # Matrix input area without brackets
+    matrix_area = st.container()
 
     with matrix_area:
 
@@ -157,12 +149,6 @@ def get_matrix(prefix):
                     row.append(value)
 
             matrix.append(row)
-
-    with outer_right:
-        st.markdown(
-            '<div class="bracket bracket-right">]</div>',
-            unsafe_allow_html=True
-        )
 
     return matrix
 
