@@ -766,15 +766,20 @@ elif operation == "Inverse":
 # ARROW KEY NAVIGATION
 # =========================================================
 
+# =========================================================
+# ARROW KEY NAVIGATION
+# =========================================================
+
 st.markdown(
     """
     <script>
-    (function() {
+    (function () {
 
-        function setupArrowNavigation() {
+        function setupMatrixNavigation() {
 
             const doc = window.parent.document;
 
+            // Get all number inputs currently visible
             const inputs = Array.from(
                 doc.querySelectorAll('input[type="number"]')
             );
@@ -783,142 +788,128 @@ st.markdown(
                 return;
             }
 
-            inputs.forEach(function(input, index) {
+            inputs.forEach(function (input, index) {
 
-                if (input.dataset.matrixNavigation === "true") {
+                // Prevent adding the listener multiple times
+                if (input.dataset.arrowNavigation === "true") {
                     return;
                 }
 
-                input.dataset.matrixNavigation = "true";
+                input.dataset.arrowNavigation = "true";
 
-                input.addEventListener(
-                    "keydown",
-                    function(event) {
+                input.addEventListener("keydown", function (event) {
 
-                        let target = null;
+                    let target = null;
 
-                        /*
-                         * Find which 3 × 3 matrix
-                         * this input belongs to.
-                         */
+                    /*
+                     * Find the position of this input
+                     * inside its 3 × 3 matrix.
+                     *
+                     * Every matrix has 9 inputs.
+                     */
 
-                        const matrixStart =
-                            Math.floor(index / 9) * 9;
+                    const matrixStart =
+                        Math.floor(index / 9) * 9;
 
-                        const position =
-                            index - matrixStart;
+                    const position =
+                        index - matrixStart;
 
-                        const row =
-                            Math.floor(position / 3);
+                    const row =
+                        Math.floor(position / 3);
 
-                        const col =
-                            position % 3;
+                    const col =
+                        position % 3;
 
 
-                        /*
-                         * RIGHT
-                         */
+                    // =====================================
+                    // RIGHT ARROW
+                    // =====================================
 
-                        if (event.key === "ArrowRight") {
+                    if (event.key === "ArrowRight") {
 
-                            if (col < 2) {
-                                target =
-                                    inputs[index + 1];
-                            }
-
+                        if (col < 2) {
+                            target = inputs[index + 1];
                         }
 
+                    }
 
-                        /*
-                         * LEFT
-                         */
 
-                        else if (event.key === "ArrowLeft") {
+                    // =====================================
+                    // LEFT ARROW
+                    // =====================================
 
-                            if (col > 0) {
-                                target =
-                                    inputs[index - 1];
-                            }
+                    else if (event.key === "ArrowLeft") {
 
+                        if (col > 0) {
+                            target = inputs[index - 1];
                         }
 
+                    }
 
-                        /*
-                         * DOWN
-                         */
 
-                        else if (event.key === "ArrowDown") {
+                    // =====================================
+                    // DOWN ARROW
+                    // =====================================
 
-                            if (row < 2) {
-                                target =
-                                    inputs[index + 3];
-                            }
+                    else if (event.key === "ArrowDown") {
 
+                        if (row < 2) {
+                            target = inputs[index + 3];
                         }
 
+                    }
 
-                        /*
-                         * UP
-                         */
 
-                        else if (event.key === "ArrowUp") {
+                    // =====================================
+                    // UP ARROW
+                    // =====================================
 
-                            if (row > 0) {
-                                target =
-                                    inputs[index - 3];
-                            }
+                    else if (event.key === "ArrowUp") {
 
+                        if (row > 0) {
+                            target = inputs[index - 3];
                         }
 
+                    }
 
-                        /*
-                         * Move to target
-                         */
 
-                        if (target) {
+                    // =====================================
+                    // MOVE TO TARGET
+                    // =====================================
 
-                            event.preventDefault();
-                            event.stopPropagation();
-                            event.stopImmediatePropagation();
+                    if (target) {
 
-                            target.focus();
+                        event.preventDefault();
+                        event.stopPropagation();
 
-                            setTimeout(function() {
-                                target.select();
-                            }, 0);
+                        target.focus();
 
-                        }
+                        // Select the existing number
+                        setTimeout(function () {
+                            target.select();
+                        }, 0);
 
-                    },
-                    true
-                );
+                    }
+
+                }, true);
 
             });
 
         }
 
 
-        /*
-         * Initial setup
-         */
-
-        setupArrowNavigation();
+        // Run initially
+        setupMatrixNavigation();
 
 
-        /*
-         * Streamlit constantly recreates
-         * elements during reruns.
-         *
-         * Watch for new inputs.
-         */
+        // Streamlit recreates widgets during reruns.
+        // Detect newly created inputs.
 
-        const observer =
-            new MutationObserver(function() {
+        const observer = new MutationObserver(function () {
 
-                setupArrowNavigation();
+            setupMatrixNavigation();
 
-            });
-
+        });
 
         observer.observe(
             window.parent.document.body,
@@ -929,13 +920,10 @@ st.markdown(
         );
 
 
-        /*
-         * Also check periodically.
-         */
-
+        // Extra check for Streamlit rerenders
         setInterval(
-            setupArrowNavigation,
-            300
+            setupMatrixNavigation,
+            500
         );
 
     })();
