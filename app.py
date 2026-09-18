@@ -162,7 +162,6 @@ def display_matrix(matrix):
     st.markdown(
         """
         <style>
-
         .result-matrix {
             display: flex;
             justify-content: center;
@@ -188,44 +187,60 @@ def display_matrix(matrix):
             font-size: 22px;
             min-width: 70px;
         }
-
         </style>
         """,
         unsafe_allow_html=True
     )
 
-    html = """
-    <div class="result-matrix">
-        <div class="result-bracket">[</div>
-
-        <table class="result-table">
-    """
+    # Format values properly
+    formatted_matrix = []
 
     for row in matrix:
 
-        html += "<tr>"
+        formatted_row = []
 
         for value in row:
 
-            # Remove unnecessary .0 for whole numbers
-            if isinstance(value, float) and value.is_integer():
-                value = int(value)
+            value = float(value)
 
-            html += f"<td>{value}</td>"
+            if value.is_integer():
+                formatted_row.append(str(int(value)))
+            else:
+                formatted_row.append(f"{value:.6f}".rstrip("0").rstrip("."))
 
-        html += "</tr>"
+        formatted_matrix.append(formatted_row)
 
-    html += """
-        </table>
+    # Use Streamlit columns instead of raw HTML table
+    col_left, col_matrix, col_right = st.columns([1, 6, 1])
 
-        <div class="result-bracket">]</div>
-    </div>
-    """
+    with col_left:
+        st.markdown(
+            '<div class="result-bracket">[</div>',
+            unsafe_allow_html=True
+        )
 
-    st.markdown(
-        html,
-        unsafe_allow_html=True
-    )
+    with col_matrix:
+
+        for row in formatted_matrix:
+
+            cols = st.columns(3)
+
+            for j in range(3):
+
+                with cols[j]:
+                    st.markdown(
+                        f"<div style='text-align:center; "
+                        f"font-size:22px; padding:10px;'>"
+                        f"{row[j]}"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
+
+    with col_right:
+        st.markdown(
+            '<div class="result-bracket">]</div>',
+            unsafe_allow_html=True
+        )
 
 
 # =========================================================
